@@ -337,10 +337,12 @@
 
   <section class="footer-cta">
     <h2>Be the first to try her.</h2>
-    <form class="waitlist" action="https://formspree.io/f/xnjevbrj" method="POST">
+    <form class="waitlist" id="waitlistFormFooter" action="https://formspree.io/f/xnjevbrj" method="POST">
       <input type="email" name="email" placeholder="you@email.com" required>
       <button type="submit">Get early access</button>
     </form>
+    <p class="form-note" id="formNoteFooter">No spam. Just a note when Mira is ready for you.</p>
+    <p class="form-success" id="formSuccessFooter">You're on the list — thank you.</p>
   </section>
 
   <footer>
@@ -348,19 +350,33 @@
   </footer>
 
   <script>
-    document.getElementById('waitlistForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const form = e.target;
-      fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: { 'Accept': 'application/json' }
-      }).then(() => {
-        document.getElementById('formNote').style.display = 'none';
-        document.getElementById('formSuccess').style.display = 'block';
-        form.reset();
+    function wireWaitlistForm(formId, noteId, successId) {
+      const form = document.getElementById(formId);
+      if (!form) return;
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const noteEl = document.getElementById(noteId);
+        const successEl = document.getElementById(successId);
+        fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        }).then((response) => {
+          if (response.ok) {
+            noteEl.style.display = 'none';
+            successEl.style.display = 'block';
+            form.reset();
+          } else {
+            noteEl.textContent = 'Something went wrong - please try again.';
+          }
+        }).catch(() => {
+          noteEl.textContent = 'Something went wrong - please try again.';
+        });
       });
-    });
+    }
+
+    wireWaitlistForm('waitlistForm', 'formNote', 'formSuccess');
+    wireWaitlistForm('waitlistFormFooter', 'formNoteFooter', 'formSuccessFooter');
   </script>
 
 </body>
